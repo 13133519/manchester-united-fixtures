@@ -1,0 +1,17 @@
+{
+  "name": "United Fixtures",
+  "short_name": "United Fixtures",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f1f1f1",
+  "theme_color": "#DA291C",
+  "description": "Manchester United 2026/27 fixture app",
+  "icons": [
+    {
+      "src": "united-fixtures-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -4,1279 +4,290 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#DA291C">
-
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="United Fixtures">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="united-fixtures-icon.png">
+<link rel="apple-touch-icon" href="united-fixtures-icon.png">
 <title>Manchester United Fixtures</title>
 
 <style>
-
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+body{margin:0;background:#f1f1f1;color:#171717;font-family:Arial,Helvetica,sans-serif}
+header{background:linear-gradient(135deg,#DA291C,#a71912);color:white;padding:18px 14px 20px;text-align:center;position:relative}
+.header-row{max-width:720px;margin:auto;display:flex;align-items:center;justify-content:center;position:relative}
+.header-title{display:flex;align-items:center;gap:10px}
+.header-icon{width:42px;height:42px;border-radius:8px;object-fit:cover;background:white}
+header h1{margin:0;font-size:23px;font-weight:800;letter-spacing:.4px}
+header p{margin:5px 0 0;font-size:13px;opacity:.9}
+.refresh-btn{position:absolute;right:0;top:0;border:1px solid rgba(255,255,255,.45);background:rgba(0,0,0,.12);color:white;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer}
+.refresh-btn:disabled{opacity:.65}
+.refresh-icon{font-size:17px;vertical-align:-2px;margin-right:3px}
+.refresh-status{font-size:10px;margin-top:7px;min-height:12px;opacity:.9}
+.container{max-width:720px;margin:auto;padding:14px}
+.next-match{background:white;border-radius:20px;padding:22px 18px;margin-top:-8px;margin-bottom:18px;box-shadow:0 5px 20px rgba(0,0,0,.10);text-align:center}
+.next-label{color:#DA291C;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px}
+.next-opponent{font-size:25px;font-weight:800;line-height:1.2;margin:12px 0 8px}
+.next-date{font-size:15px;color:#444;font-weight:600}
+.next-time{font-size:34px;font-weight:900;margin:6px 0}
+.next-time.tbc{color:#9a7100}
+.next-competition{color:#666;font-size:13px}
+.next-location{display:inline-block;margin-top:10px;padding:5px 9px;border-radius:7px;background:#eee;font-size:11px;font-weight:800}
+.countdown{margin-top:15px;padding-top:14px;border-top:1px solid #eee}
+.countdown-label{font-size:10px;text-transform:uppercase;color:#777;font-weight:bold}
+.countdown-value{margin-top:3px;font-size:17px;font-weight:800}
+.filters{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:10px}
+.filters::-webkit-scrollbar{display:none}
+.filters button{border:0;background:white;color:#222;border-radius:20px;padding:10px 14px;font-size:12px;font-weight:800;white-space:nowrap}
+.filters button.active{background:#DA291C;color:white}
+.month-nav{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:4px 0 12px}
+.month-nav::-webkit-scrollbar{display:none}
+.month-nav button{border:1px solid #ddd;background:white;border-radius:8px;padding:7px 11px;font-size:11px;font-weight:bold;white-space:nowrap}
+.month-nav button.active{border-color:#DA291C;color:#DA291C}
+.month{display:flex;align-items:center;gap:10px;margin:20px 3px 10px}
+.month-title{font-size:19px;font-weight:900}
+.month-line{height:1px;background:#ddd;flex:1}
+.fixture{position:relative;background:white;border-radius:15px;padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:11px;box-shadow:0 2px 8px rgba(0,0,0,.055)}
+.fixture.big-match{border-left:4px solid #DA291C}
+.star{position:absolute;top:7px;right:8px;font-size:12px}
+.fixture-date{width:48px;text-align:center;flex-shrink:0}
+.fixture-date strong{display:block;font-size:21px;line-height:1}
+.fixture-date span{display:block;margin-top:4px;color:#777;font-size:10px;font-weight:bold;text-transform:uppercase}
+.fixture-info{flex:1;min-width:0}
+.fixture-opponent{font-size:16px;font-weight:800;line-height:1.25;padding-right:15px}
+.fixture-meta{margin-top:5px;color:#666;font-size:11px}
+.home{color:#27802c;font-weight:800}
+.away{color:#a14d00;font-weight:800}
+.fixture-time{min-width:43px;text-align:right;font-size:16px;font-weight:900}
+.fixture-time.tbc{color:#9a7100;font-size:13px}
+.status{display:inline-block;margin-top:6px;padding:3px 6px;border-radius:5px;font-size:9px;font-weight:800;background:#fff2cc;color:#856404}
+.status.confirmed{background:#e2f0d9;color:#287528}
+.tv{display:inline-block;margin-left:4px;color:#555}
+.competition{display:inline-block;font-size:9px;font-weight:800;padding:3px 6px;border-radius:5px;background:#eee}
+.loading,.error,.empty{background:white;border-radius:14px;padding:20px;text-align:center}
+.error{color:#a00000}
+.footer{text-align:center;padding:28px 10px;color:#888;font-size:10px}
+@media(max-width:500px){
+header h1{font-size:19px}
+.header-icon{width:36px;height:36px}
+.refresh-btn{right:0;padding:7px 8px}
+.refresh-btn .refresh-text{display:none}
+.container{padding:11px}
+.next-opponent{font-size:22px}
+.next-time{font-size:31px}
+.fixture{padding:13px 11px}
+.fixture-opponent{font-size:15px}
 }
-
-body {
-  margin: 0;
-  background: #f1f1f1;
-  color: #171717;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-header {
-  background: linear-gradient(135deg, #DA291C, #a71912);
-  color: white;
-  padding: 25px 16px 28px;
-  text-align: center;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 25px;
-  font-weight: 800;
-  letter-spacing: .5px;
-}
-
-header p {
-  margin: 6px 0 0;
-  font-size: 13px;
-  opacity: .9;
-}
-
-.container {
-  max-width: 720px;
-  margin: auto;
-  padding: 14px;
-}
-
-/* NEXT MATCH */
-
-.next-match {
-  background: white;
-  border-radius: 20px;
-  padding: 22px 18px;
-  margin-top: -10px;
-  margin-bottom: 18px;
-  box-shadow: 0 5px 20px rgba(0,0,0,.10);
-  text-align: center;
-}
-
-.next-label {
-  color: #DA291C;
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
-
-.next-opponent {
-  font-size: 25px;
-  font-weight: 800;
-  line-height: 1.2;
-  margin: 12px 0 8px;
-}
-
-.next-date {
-  font-size: 15px;
-  color: #444;
-  font-weight: 600;
-}
-
-.next-time {
-  font-size: 34px;
-  font-weight: 900;
-  margin: 6px 0;
-}
-
-.next-time.tbc {
-  color: #9a7100;
-}
-
-.next-competition {
-  color: #666;
-  font-size: 13px;
-}
-
-.next-location {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 5px 9px;
-  border-radius: 7px;
-  background: #eee;
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.countdown {
-  margin-top: 15px;
-  padding-top: 14px;
-  border-top: 1px solid #eee;
-}
-
-.countdown-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  color: #777;
-  font-weight: bold;
-}
-
-.countdown-value {
-  margin-top: 3px;
-  font-size: 17px;
-  font-weight: 800;
-}
-
-/* FILTERS */
-
-.filters {
-  display: flex;
-  gap: 7px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-  margin-bottom: 10px;
-}
-
-.filters::-webkit-scrollbar {
-  display: none;
-}
-
-.filters button {
-  border: 0;
-  background: white;
-  color: #222;
-  border-radius: 20px;
-  padding: 10px 14px;
-  font-size: 12px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.filters button.active {
-  background: #DA291C;
-  color: white;
-}
-
-/* MONTH NAVIGATION */
-
-.month-nav {
-  display: flex;
-  gap: 7px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 4px 0 12px;
-}
-
-.month-nav::-webkit-scrollbar {
-  display: none;
-}
-
-.month-nav button {
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 8px;
-  padding: 7px 11px;
-  font-size: 11px;
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.month-nav button.active {
-  border-color: #DA291C;
-  color: #DA291C;
-}
-
-/* MONTH */
-
-.month {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 20px 3px 10px;
-}
-
-.month-title {
-  font-size: 19px;
-  font-weight: 900;
-}
-
-.month-line {
-  height: 1px;
-  background: #ddd;
-  flex: 1;
-}
-
-/* FIXTURE */
-
-.fixture {
-  position: relative;
-  background: white;
-  border-radius: 15px;
-  padding: 14px;
-  margin-bottom: 9px;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.055);
-}
-
-.fixture.big-match {
-  border-left: 4px solid #DA291C;
-}
-
-.star {
-  position: absolute;
-  top: 7px;
-  right: 8px;
-  font-size: 12px;
-}
-
-.fixture-date {
-  width: 48px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.fixture-date strong {
-  display: block;
-  font-size: 21px;
-  line-height: 1;
-}
-
-.fixture-date span {
-  display: block;
-  margin-top: 4px;
-  color: #777;
-  font-size: 10px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.fixture-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.fixture-opponent {
-  font-size: 16px;
-  font-weight: 800;
-  line-height: 1.25;
-  padding-right: 15px;
-}
-
-.fixture-meta {
-  margin-top: 5px;
-  color: #666;
-  font-size: 11px;
-}
-
-.home {
-  color: #27802c;
-  font-weight: 800;
-}
-
-.away {
-  color: #a14d00;
-  font-weight: 800;
-}
-
-.fixture-time {
-  min-width: 43px;
-  text-align: right;
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.fixture-time.tbc {
-  color: #9a7100;
-  font-size: 13px;
-}
-
-.status {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 3px 6px;
-  border-radius: 5px;
-  font-size: 9px;
-  font-weight: 800;
-  background: #fff2cc;
-  color: #856404;
-}
-
-.status.confirmed {
-  background: #e2f0d9;
-  color: #287528;
-}
-
-.tv {
-  display: inline-block;
-  margin-left: 4px;
-  color: #555;
-}
-
-/* COMPETITION */
-
-.competition {
-  display: inline-block;
-  font-size: 9px;
-  font-weight: 800;
-  padding: 3px 6px;
-  border-radius: 5px;
-  background: #eee;
-}
-
-/* FOOTER */
-
-.footer {
-  text-align: center;
-  padding: 28px 10px;
-  color: #888;
-  font-size: 10px;
-}
-
-/* LOADING */
-
-.loading,
-.error,
-.empty {
-  background: white;
-  border-radius: 14px;
-  padding: 20px;
-  text-align: center;
-}
-
-.error {
-  color: #a00000;
-}
-
-/* MOBILE */
-
-@media (max-width: 500px) {
-
-  header h1 {
-    font-size: 22px;
-  }
-
-  .container {
-    padding: 11px;
-  }
-
-  .next-opponent {
-    font-size: 22px;
-  }
-
-  .next-time {
-    font-size: 31px;
-  }
-
-  .fixture {
-    padding: 13px 11px;
-  }
-
-  .fixture-opponent {
-    font-size: 15px;
-  }
-
-}
-
 </style>
 </head>
 
 <body>
-
 <header>
-
-  <h1>🔴 MANCHESTER UNITED</h1>
-
-  <p>2026/27 FIXTURES</p>
-
+  <div class="header-row">
+    <div class="header-title">
+      <img class="header-icon" src="united-fixtures-icon.png" alt="">
+      <div>
+        <h1>UNITED FIXTURES</h1>
+        <p>2026/27 SEASON</p>
+      </div>
+    </div>
+    <button class="refresh-btn" id="refreshButton" type="button" title="Refresh fixtures">
+      <span class="refresh-icon">↻</span><span class="refresh-text">REFRESH</span>
+    </button>
+  </div>
+  <div class="refresh-status" id="refreshStatus"></div>
 </header>
 
-
 <main class="container">
-
-
-<!-- NEXT MATCH -->
-
 <section class="next-match" id="nextMatch">
-
-  <div class="next-label">
-    Next Match
-  </div>
-
-  <div class="loading">
-    Loading fixtures...
-  </div>
-
+  <div class="next-label">Next Match</div>
+  <div class="loading">Loading fixtures...</div>
 </section>
-
-
-<!-- COMPETITION FILTER -->
 
 <div class="filters" id="filters">
-
-  <button class="active" data-filter="All">
-    ALL
-  </button>
-
-  <button data-filter="Premier League">
-    PREMIER LEAGUE
-  </button>
-
-  <button data-filter="Champions League">
-    CHAMPIONS LEAGUE
-  </button>
-
-  <button data-filter="FA Cup">
-    FA CUP
-  </button>
-
-  <button data-filter="Carabao Cup">
-    CARABAO CUP
-  </button>
-
+  <button class="active" data-filter="All">ALL</button>
+  <button data-filter="Premier League">PREMIER LEAGUE</button>
+  <button data-filter="Champions League">CHAMPIONS LEAGUE</button>
+  <button data-filter="FA Cup">FA CUP</button>
+  <button data-filter="Carabao Cup">CARABAO CUP</button>
 </div>
-
-
-<!-- MONTH NAV -->
 
 <div class="month-nav" id="monthNav"></div>
-
-
-<!-- FIXTURES -->
-
-<section id="fixtures">
-
-  <div class="loading">
-    Loading fixtures...
-  </div>
-
-</section>
-
-
-<div class="footer">
-
-  Manchester United 2026/27
-
-</div>
-
-
+<section id="fixtures"><div class="loading">Loading fixtures...</div></section>
+<div class="footer">Manchester United 2026/27</div>
 </main>
 
-
 <script>
+const API_URL="https://script.google.com/macros/s/AKfycbxak67aZihpH2B0a3Ls46HZubqv7P0h5VM7QF5fTmD9EGGEvqw3IES2B7PBt6-uuvEH/exec";
+let fixtures=[],currentFilter="All",selectedMonth="All",countdownTimer;
 
-
-/* =========================================
-   GOOGLE SHEETS DATA SOURCE
-========================================= */
-
-const API_URL =
-"https://script.google.com/macros/s/AKfycbxak67aZihpH2B0a3Ls46HZubqv7P0h5VM7QF5fTmD9EGGEvqw3IES2B7PBt6-uuvEH/exec";
-
-
-let fixtures = [];
-
-let currentFilter = "All";
-
-let selectedMonth = "All";
-
-
-/* =========================================
-   LOAD DATA
-========================================= */
-
-async function loadFixtures() {
-
-  try {
-
-    const response = await fetch(API_URL);
-
-    if (!response.ok) {
-      throw new Error("Unable to load data");
-    }
-
-    fixtures =
-      await response.json();
-
-
-    fixtures =
-      fixtures
-
-        .filter(f => f.Date)
-
-        .sort(
-          (a,b) =>
-            new Date(a.Date) -
-            new Date(b.Date)
-        );
-
-
+async function loadFixtures(showMessage=false){
+  const button=document.getElementById("refreshButton");
+  const status=document.getElementById("refreshStatus");
+  button.disabled=true;
+  if(showMessage) status.textContent="Refreshing…";
+  try{
+    const separator=API_URL.includes("?")?"&":"?";
+    const response=await fetch(API_URL+separator+"t="+Date.now(),{
+      method:"GET",redirect:"follow",mode:"cors",cache:"no-store"
+    });
+    if(!response.ok) throw new Error("Unable to load data");
+    fixtures=await response.json();
+    fixtures=fixtures.filter(f=>f.Date).sort((a,b)=>new Date(a.Date)-new Date(b.Date));
     buildMonthNavigation();
-
     showNextMatch();
-
     showFixtures();
-
-
-  } catch(error) {
-
+    if(showMessage) status.textContent="Fixtures updated";
+    setTimeout(()=>{status.textContent=""},2500);
+  }catch(error){
     console.error(error);
-
-    document.getElementById("fixtures").innerHTML = `
-
-      <div class="error">
-
-        Unable to load fixtures.
-
-        <br><br>
-
-        Please refresh the page.
-
-      </div>
-
-    `;
-
+    document.getElementById("fixtures").innerHTML='<div class="error"><strong>Unable to load fixtures</strong><br><br>Please try again.</div>';
+    status.textContent="Update failed";
+  }finally{
+    button.disabled=false;
   }
-
 }
 
-
-/* =========================================
-   CONFIRMED KICK-OFF
-========================================= */
-
-function isConfirmed(fixture) {
-
-  return String(
-    fixture.Status || ""
-  )
-  .trim()
-  .toLowerCase() === "confirmed";
-
+function isConfirmed(fixture){
+  return String(fixture.Status||"").trim().toLowerCase()==="confirmed";
 }
 
-
-function getKickoff(fixture) {
-
-  if (
-    isConfirmed(fixture) &&
-    fixture.Kickoff
-  ) {
-
-    return fixture.Kickoff;
-
-  }
-
-  return "TBC";
-
+function getKickoff(fixture){
+  return isConfirmed(fixture)&&fixture.Kickoff?fixture.Kickoff:"TBC";
 }
 
-
-/* =========================================
-   BIG MATCH
-========================================= */
-
-function isBigMatch(fixture) {
-
-  const bigTeams = [
-
-    "Liverpool",
-    "Manchester City",
-    "Arsenal",
-    "Chelsea",
-    "Tottenham Hotspur",
-    "Newcastle United"
-
-  ];
-
-
-  return bigTeams.includes(
-    fixture.Opponent
-  );
-
+function isBigMatch(fixture){
+  return ["Liverpool","Manchester City","Arsenal","Chelsea","Tottenham Hotspur","Newcastle United"].includes(fixture.Opponent);
 }
 
-
-/* =========================================
-   NEXT MATCH
-========================================= */
-
-function showNextMatch() {
-
-  const today =
-    new Date();
-
-
-  const next =
-    fixtures.find(
-      fixture =>
-        new Date(fixture.Date) >= today
-    );
-
-
-  const container =
-    document.getElementById(
-      "nextMatch"
-    );
-
-
-  if (!next) {
-
-    container.innerHTML = `
-
-      <div class="next-label">
-        Season Complete
-      </div>
-
-      <div class="empty">
-        No upcoming fixtures.
-      </div>
-
-    `;
-
+function showNextMatch(){
+  const today=new Date();
+  const next=fixtures.find(f=>new Date(f.Date)>=today);
+  const container=document.getElementById("nextMatch");
+  if(!next){
+    container.innerHTML='<div class="next-label">Season Complete</div><div class="empty">No upcoming fixtures.</div>';
     return;
-
   }
-
-
-  const opponent =
-    next.HomeAway === "Home"
-
-      ? "Manchester United vs " +
-        next.Opponent
-
-      : next.Opponent +
-        " vs Manchester United";
-
-
-  const confirmed =
-    isConfirmed(next);
-
-
-  const kickoff =
-    getKickoff(next);
-
-
-  container.innerHTML = `
-
-    <div class="next-label">
-      Next Match
-    </div>
-
-    <div class="next-opponent">
-      ${opponent}
-    </div>
-
-    <div class="next-date">
-      ${formatDate(next.Date)}
-    </div>
-
-    <div class="next-time ${
-      confirmed ? "" : "tbc"
-    }">
-
-      ${kickoff}
-
-    </div>
-
-    <div class="next-competition">
-      ${next.Competition}
-    </div>
-
-    <div class="next-location">
-      ${
-        next.HomeAway === "Home"
-          ? "🏠 HOME"
-          : "✈️ AWAY"
-      }
-    </div>
-
+  const opponent=next.HomeAway==="Home"?"Manchester United vs "+next.Opponent:next.Opponent+" vs Manchester United";
+  const confirmed=isConfirmed(next),kickoff=getKickoff(next);
+  container.innerHTML=`
+    <div class="next-label">Next Match</div>
+    <div class="next-opponent">${opponent}</div>
+    <div class="next-date">${formatDate(next.Date)}</div>
+    <div class="next-time ${confirmed?"":"tbc"}">${kickoff}</div>
+    <div class="next-competition">${next.Competition}</div>
+    <div class="next-location">${next.HomeAway==="Home"?"🏠 HOME":"✈️ AWAY"}</div>
     <div class="countdown">
-
-      <div class="countdown-label">
-        Countdown
-      </div>
-
-      <div
-        class="countdown-value"
-        id="countdown"
-      >
-        Calculating...
-      </div>
-
-    </div>
-
-  `;
-
-
+      <div class="countdown-label">Countdown</div>
+      <div class="countdown-value" id="countdown">Calculating...</div>
+    </div>`;
   startCountdown(next);
-
 }
 
-
-/* =========================================
-   COUNTDOWN
-========================================= */
-
-let countdownTimer;
-
-
-function startCountdown(fixture) {
-
+function startCountdown(fixture){
   clearInterval(countdownTimer);
-
-
-  const countdown =
-    document.getElementById(
-      "countdown"
-    );
-
-
-  if (!countdown) return;
-
-
-  function update() {
-
-    const target =
-      new Date(fixture.Date);
-
-
-    if (
-      isConfirmed(fixture) &&
-      fixture.Kickoff
-    ) {
-
-      const parts =
-        fixture.Kickoff.split(":");
-
-
-      target.setHours(
-        Number(parts[0]),
-        Number(parts[1]),
-        0,
-        0
-      );
-
+  const countdown=document.getElementById("countdown");
+  if(!countdown)return;
+  function update(){
+    const target=new Date(fixture.Date);
+    if(isConfirmed(fixture)&&fixture.Kickoff){
+      const parts=String(fixture.Kickoff).split(":");
+      target.setHours(Number(parts[0]),Number(parts[1]),0,0);
     }
-
-
-    const now =
-      new Date();
-
-
-    const difference =
-      target - now;
-
-
-    if (difference <= 0) {
-
-      countdown.textContent =
-        "Matchday";
-
-      return;
-
-    }
-
-
-    const days =
-      Math.floor(
-        difference /
-        (1000 * 60 * 60 * 24)
-      );
-
-
-    const hours =
-      Math.floor(
-        (difference /
-        (1000 * 60 * 60)) % 24
-      );
-
-
-    const minutes =
-      Math.floor(
-        (difference /
-        (1000 * 60)) % 60
-      );
-
-
-    countdown.textContent =
-      `${days}d ${hours}h ${minutes}m`;
-
+    const difference=target-new Date();
+    if(difference<=0){countdown.textContent="Matchday";return;}
+    const days=Math.floor(difference/(1000*60*60*24));
+    const hours=Math.floor((difference/(1000*60*60))%24);
+    const minutes=Math.floor((difference/(1000*60))%60);
+    countdown.textContent=`${days}d ${hours}h ${minutes}m`;
   }
-
-
   update();
-
-
-  countdownTimer =
-    setInterval(
-      update,
-      60000
-    );
-
+  countdownTimer=setInterval(update,60000);
 }
 
-
-/* =========================================
-   MONTH NAVIGATION
-========================================= */
-
-function buildMonthNavigation() {
-
-  const nav =
-    document.getElementById(
-      "monthNav"
-    );
-
-
-  const months = [];
-
-
-  fixtures.forEach(fixture => {
-
-    const date =
-      new Date(fixture.Date);
-
-
-    const key =
-      date.getFullYear() +
-      "-" +
-      String(
-        date.getMonth() + 1
-      ).padStart(2,"0");
-
-
-    if (!months.includes(key)) {
-
-      months.push(key);
-
-    }
-
+function buildMonthNavigation(){
+  const nav=document.getElementById("monthNav");
+  const months=[];
+  fixtures.forEach(f=>{
+    const d=new Date(f.Date);
+    const key=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+    if(!months.includes(key))months.push(key);
   });
-
-
-  let html = `
-
-    <button
-      class="active"
-      data-month="All"
-    >
-      ALL MONTHS
-    </button>
-
-  `;
-
-
-  months.forEach(key => {
-
-    const date =
-      new Date(
-        key + "-01"
-      );
-
-
-    html += `
-
-      <button
-        data-month="${key}"
-      >
-
-        ${date.toLocaleDateString(
-          "en-GB",
-          {
-            month: "short"
-          }
-        ).toUpperCase()}
-
-      </button>
-
-    `;
-
-  });
-
-
-  nav.innerHTML = html;
-
-
-  nav.addEventListener(
-    "click",
-    function(event) {
-
-      if (
-        event.target.tagName !==
-        "BUTTON"
-      ) return;
-
-
-      nav
-        .querySelectorAll("button")
-        .forEach(
-          button =>
-            button.classList.remove(
-              "active"
-            )
-        );
-
-
-      event.target.classList.add(
-        "active"
-      );
-
-
-      selectedMonth =
-        event.target.dataset.month;
-
-
+  nav.innerHTML=`<button class="active" data-month="All">ALL MONTHS</button>`+
+    months.map(key=>{
+      const d=new Date(key+"-01");
+      return `<button data-month="${key}">${d.toLocaleDateString("en-GB",{month:"short"}).toUpperCase()}</button>`;
+    }).join("");
+  nav.querySelectorAll("button").forEach(button=>{
+    button.addEventListener("click",()=>{
+      nav.querySelectorAll("button").forEach(b=>b.classList.remove("active"));
+      button.classList.add("active");
+      selectedMonth=button.dataset.month;
       showFixtures();
-
-    }
-  );
-
+    });
+  });
 }
 
-
-/* =========================================
-   FIXTURE DISPLAY
-========================================= */
-
-function showFixtures() {
-
-  const container =
-    document.getElementById(
-      "fixtures"
-    );
-
-
-  let filtered =
-    currentFilter === "All"
-
-      ? fixtures
-
-      : fixtures.filter(
-          fixture =>
-            fixture.Competition ===
-            currentFilter
-        );
-
-
-  if (
-    selectedMonth !== "All"
-  ) {
-
-    filtered =
-      filtered.filter(
-        fixture => {
-
-          const date =
-            new Date(
-              fixture.Date
-            );
-
-
-          const key =
-            date.getFullYear() +
-            "-" +
-            String(
-              date.getMonth() + 1
-            ).padStart(2,"0");
-
-
-          return (
-            key === selectedMonth
-          );
-
-        }
-      );
-
+function showFixtures(){
+  const container=document.getElementById("fixtures");
+  let filtered=currentFilter==="All"?fixtures:fixtures.filter(f=>f.Competition===currentFilter);
+  if(selectedMonth!=="All"){
+    filtered=filtered.filter(f=>{
+      const d=new Date(f.Date);
+      return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")===selectedMonth;
+    });
   }
-
-
-  if (!filtered.length) {
-
-    container.innerHTML = `
-
-      <div class="empty">
-        No fixtures found.
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  let html = "";
-
-  let currentMonth = "";
-
-
-  filtered.forEach(fixture => {
-
-    const date =
-      new Date(
-        fixture.Date
-      );
-
-
-    const month =
-      date.toLocaleDateString(
-        "en-GB",
-        {
-          month: "long",
-          year: "numeric"
-        }
-      );
-
-
-    if (
-      month !== currentMonth
-    ) {
-
-      currentMonth =
-        month;
-
-
-      html += `
-
-        <div class="month">
-
-          <div class="month-title">
-            ${month}
-          </div>
-
-          <div class="month-line"></div>
-
-        </div>
-
-      `;
-
+  if(!filtered.length){container.innerHTML='<div class="empty">No fixtures found.</div>';return;}
+  let html="",currentMonth="";
+  filtered.forEach(f=>{
+    const date=new Date(f.Date);
+    const month=date.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+    if(month!==currentMonth){
+      currentMonth=month;
+      html+=`<div class="month"><div class="month-title">${month}</div><div class="month-line"></div></div>`;
     }
-
-
-    const homeAway =
-      fixture.HomeAway ||
-      "TBC";
-
-
-    const opponent =
-      homeAway === "Home"
-
-        ? "Manchester United vs " +
-          fixture.Opponent
-
-        : homeAway === "Away"
-
-          ? fixture.Opponent +
-            " vs Manchester United"
-
-          : fixture.Opponent;
-
-
-    const confirmed =
-      isConfirmed(fixture);
-
-
-    const kickoff =
-      getKickoff(fixture);
-
-
-    const bigMatch =
-      isBigMatch(fixture);
-
-
-    const tv =
-      fixture.TV &&
-      fixture.TV !== "TBC"
-
-        ? `<span class="tv">📺 ${fixture.TV}</span>`
-
-        : "";
-
-
-    html += `
-
-      <div class="fixture ${
-        bigMatch
-          ? "big-match"
-          : ""
-      }">
-
-        ${
-          bigMatch
-            ? `<div class="star">⭐</div>`
-            : ""
-        }
-
-
-        <div class="fixture-date">
-
-          <strong>
-            ${date.getDate()}
-          </strong>
-
-          <span>
-            ${date.toLocaleDateString(
-              "en-GB",
-              {
-                weekday: "short"
-              }
-            )}
-          </span>
-
-        </div>
-
-
+    const homeAway=f.HomeAway||"TBC";
+    const opponent=homeAway==="Home"?"Manchester United vs "+f.Opponent:homeAway==="Away"?f.Opponent+" vs Manchester United":f.Opponent;
+    const confirmed=isConfirmed(f),kickoff=getKickoff(f),bigMatch=isBigMatch(f);
+    const tv=f.TV&&f.TV!=="TBC"?`<span class="tv">📺 ${f.TV}</span>`:"";
+    html+=`
+      <div class="fixture ${bigMatch?"big-match":""}">
+        ${bigMatch?'<div class="star">⭐</div>':""}
+        <div class="fixture-date"><strong>${date.getDate()}</strong><span>${date.toLocaleDateString("en-GB",{weekday:"short"})}</span></div>
         <div class="fixture-info">
-
-          <div class="fixture-opponent">
-
-            ${opponent}
-
-          </div>
-
-
+          <div class="fixture-opponent">${opponent}</div>
           <div class="fixture-meta">
-
-            <span class="${
-              homeAway === "Home"
-                ? "home"
-                : "away"
-            }">
-
-              ${
-                homeAway === "Home"
-                  ? "🏠 HOME"
-                  : "✈️ AWAY"
-              }
-
-            </span>
-
-            ·
-
-            <span class="competition">
-
-              ${fixture.Competition}
-
-            </span>
-
-            ${tv}
-
+            <span class="${homeAway==="Home"?"home":"away"}">${homeAway==="Home"?"🏠 HOME":"✈️ AWAY"}</span>
+            · <span class="competition">${f.Competition}</span>${tv}
           </div>
-
-
-          <div class="status ${
-            confirmed
-              ? "confirmed"
-              : ""
-          }">
-
-            ${
-              confirmed
-                ? "✓ Confirmed"
-                : (
-                    fixture.Status ||
-                    "TBC"
-                  )
-            }
-
-          </div>
-
+          <div class="status ${confirmed?"confirmed":""}">${confirmed?"✓ Confirmed":(f.Status||"TBC")}</div>
         </div>
-
-
-        <div class="fixture-time ${
-          confirmed
-            ? ""
-            : "tbc"
-        }">
-
-          ${kickoff}
-
-        </div>
-
-
-      </div>
-
-    `;
-
+        <div class="fixture-time ${confirmed?"":"tbc"}">${kickoff}</div>
+      </div>`;
   });
-
-
-  container.innerHTML =
-    html;
-
+  container.innerHTML=html;
 }
 
-
-/* =========================================
-   DATE FORMAT
-========================================= */
-
-function formatDate(dateString) {
-
-  return new Date(
-    dateString
-  ).toLocaleDateString(
-    "en-GB",
-    {
-      weekday: "long",
-      day: "numeric",
-      month: "long"
-    }
-  );
-
+function formatDate(dateString){
+  return new Date(dateString).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
 }
 
+document.getElementById("filters").addEventListener("click",e=>{
+  if(e.target.tagName!=="BUTTON")return;
+  document.querySelectorAll(".filters button").forEach(b=>b.classList.remove("active"));
+  e.target.classList.add("active");
+  currentFilter=e.target.dataset.filter;
+  showFixtures();
+});
 
-/* =========================================
-   COMPETITION FILTER
-========================================= */
+document.getElementById("refreshButton").addEventListener("click",()=>loadFixtures(true));
 
-document
-  .getElementById("filters")
-  .addEventListener(
-    "click",
-    function(event) {
-
-      if (
-        event.target.tagName !==
-        "BUTTON"
-      ) return;
-
-
-      document
-        .querySelectorAll(
-          ".filters button"
-        )
-        .forEach(
-          button =>
-            button.classList.remove(
-              "active"
-            )
-        );
-
-
-      event.target.classList.add(
-        "active"
-      );
-
-
-      currentFilter =
-        event.target.dataset.filter;
-
-
-      showFixtures();
-
-    }
-  );
-
-
-/* =========================================
-   START
-========================================= */
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.error));
+}
 
 loadFixtures();
-
 </script>
-
 </body>
 </html>
