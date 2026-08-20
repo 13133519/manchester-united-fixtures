@@ -1,1 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#DA291C">
 
+  <title>Manchester United Fixtures</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f4f4;
+      color: #171717;
+    }
+
+    header {
+      background: #DA291C;
+      color: white;
+      padding: 24px 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    .next-match {
+      background: white;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .next-match h2 {
+      margin-top: 0;
+      font-size: 16px;
+      color: #DA291C;
+      text-transform: uppercase;
+    }
+
+    .opponent {
+      font-size: 25px;
+      font-weight: bold;
+      margin: 12px 0;
+    }
+
+    .fixture-date {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .kickoff {
+      font-size: 30px;
+      font-weight: bold;
+      margin: 8px 0;
+    }
+
+    .competition {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .filters button {
+      border: none;
+      background: white;
+      padding: 10px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .filters button.active {
+      background: #DA291C;
+      color: white;
+    }
+
+    .month {
+      margin-top: 22px;
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .fixture {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 7px rgba(0,0,0,0.06);
+    }
+
+    .fixture-date {
+      width: 60px;
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+      flex-shrink: 0;
+    }
+
+    .fixture-date strong {
+      display: block;
+      font-size: 20px;
+      color: #171717;
+    }
+
+    .fixture-info {
+      flex: 1;
+    }
+
+    .fixture-opponent {
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .fixture-meta {
+      color: #666;
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .fixture-time {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .status {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: #eee;
+    }
+
+    .confirmed {
+      background: #e2f0d9;
+      color: #287528;
+    }
+
+    .tbc {
+      background: #fff2cc;
+      color: #8a6500;
+    }
+
+    .loading,
+    .error,
+    .empty {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .footer {
+      text-align: center;
+      color: #777;
+      font-size: 12px;
+      padding: 25px 10px;
+    }
+
+    @media (max-width: 500px) {
+      header h1 {
+        font-size: 21px;
+      }
+
+      .opponent {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🔴 MANCHESTER UNITED</h1>
+  <p>2026/27 Fixtures</p>
+</header>
+
+<main class="container">
+
+  <section class="next-match" id="nextMatch">
+    <h2>Next Match</h2>
+    <div class="loading">Loading fixtures...</div>
+  </section>
+
+  <div class="filters" id="filters">
+    <button class="active" data-filter="All">All</button>
+    <button data-filter="Premier League">Premier League</button>
+    <button data-filter="Champions League">Champions League</button>
+    <button data-filter="FA Cup">FA Cup</button>
+    <button data-filter="Carabao Cup">Carabao Cup</button>
+  </div>
+
+  <section id="fixtures">
+    <div class="loading">Loading fixtures...</div>
+  </section>
+
+  <div class="footer">
+    Manchester United 2026/27 Fixtures
+  </div>
+
+</main>
+
+<script>
+
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbxak67aZihpH2B0a3Ls46HZubqv7P0h5VM7QF5fTmD9EGGEvqw3IES2B7PBt6-uuvEH/exec";
+
+let fixtures = [];
+let currentFilter = "All";
+
+async function loadFixtures() {
+
+  const fixturesContainer = document.getElementById("fixtures");
+
+  try {
+
+    const response = await fetch(API_URL);
+
+    if (!response.ok) {
+      throw new Error("Unable to load fixture data");
+    }
+
+    fixtures = await response.json();
+
+    fixtures = fixtures
+      .filter(f => f.Date)
+      .sort((a, b) => new Date(a.Date) - new Date(b.Date));
+
+    displayNextMatch();
+    displayFixtures();
+
+  } catch (error) {
+
+    fixturesContainer.innerHTML =
+      `<div class="error">
+        Unable to load fixtures.<br>
+        Please try again later.
+      </div>`;
+
+    console.error(error);
+  }
+}
+
+function displayNextMatch() {
+
+  const today = new Date();
+
+  const next = fixtures.find(f => {
+    return new Date(f.Date) >= today;
+  });
+
+  const container = document.getElementById("nextMatch");
+
+  if (!next) {
+    container.innerHTML = `
+      <h2>Next Match</h2>
+      <div class="empty">No upcoming fixtures.</div>
+    `;
+    return;
+  }
+
+  const date = formatDate(next.Date);
+
+  container.innerHTML = `
+    <h2>Next Match</h2>
+
+    <div class="opponent">
+      ${next["Home/Away"] === "Home"
+        ? "Manchester United vs " + next.Opponent
+        : next.Opponent + " vs Manchester United"}
+    </div>
+
+    <div class="fixture-date">
+      ${date}
+    </div>
+
+    <div class="kickoff">
+      ${next["Kick-off"] || "TBC"}
+    </div>
+
+    <div class="competition">
+      ${next.Competition}
+    </div>
+
+    <div class="status ${getStatusClass(next.Status)}">
+      ${next.Status || "TBC"}
+    </div>
+  `;
+}
+
+function displayFixtures() {
+
+  const container = document.getElementById("fixtures");
+
+  const filtered = currentFilter === "All"
+    ? fixtures
+    : fixtures.filter(f => f.Competition === currentFilter);
+
+  if (!filtered.length) {
+    container.innerHTML =
+      `<div class="empty">No fixtures found.</div>`;
+    return;
+  }
+
+  let html = "";
+  let currentMonth = "";
+
+  filtered.forEach(fixture => {
+
+    const date = new Date(fixture.Date);
+
+    const month = date.toLocaleDateString("en-GB", {
+      month: "long",
+      year: "numeric"
+    });
+
+    if (month !== currentMonth) {
+
+      currentMonth = month;
+
+      html += `
+        <div class="month">
+          ${month}
+        </div>
+      `;
+    }
+
+    html += `
+      <div class="fixture">
+
+        <div class="fixture-date">
+          <strong>${date.getDate()}</strong>
+          ${date.toLocaleDateString("en-GB", {
+            weekday: "short"
+          })}
+        </div>
+
+        <div class="fixture-info">
+
+          <div class="fixture-opponent">
+            ${fixture["Home/Away"] === "Home"
+              ? "Manchester United vs " + fixture.Opponent
+              : fixture.Opponent + " vs Manchester United"}
+          </div>
+
+          <div class="fixture-meta">
+            ${fixture["Home/Away"] || ""}
+            ·
+            ${fixture.Competition}
+          </div>
+
+          <div class="status ${getStatusClass(fixture.Status)}">
+            ${fixture.Status || "TBC"}
+          </div>
+
+        </div>
+
+        <div class="fixture-time">
+          ${fixture["Kick-off"] || "TBC"}
+        </div>
+
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function formatDate(dateString) {
+
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  });
+}
+
+function getStatusClass(status) {
+
+  if (!status) return "tbc";
+
+  if (
+    status.toLowerCase().includes("confirmed")
+  ) {
+    return "confirmed";
+  }
+
+  return "tbc";
+}
+
+document
+  .getElementById("filters")
+  .addEventListener("click", function(event) {
+
+    if (event.target.tagName !== "BUTTON") return;
+
+    document
+      .querySelectorAll(".filters button")
+      .forEach(button =>
+        button.classList.remove("active")
+      );
+
+    event.target.classList.add("active");
+
+    currentFilter = event.target.dataset.filter;
+
+    displayFixtures();
+  });
+
+loadFixtures();
+
+</script>
+
+</body>
+</html>
