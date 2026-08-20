@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#DA291C">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <title>Manchester United Fixtures</title>
 
@@ -20,8 +19,6 @@
       background: #f3f3f3;
       color: #171717;
     }
-
-    /* HEADER */
 
     header {
       background: #DA291C;
@@ -42,15 +39,11 @@
       opacity: 0.9;
     }
 
-    /* MAIN */
-
     .container {
       max-width: 700px;
       margin: auto;
       padding: 16px;
     }
-
-    /* NEXT MATCH */
 
     .next-match {
       background: white;
@@ -109,8 +102,6 @@
       text-transform: uppercase;
     }
 
-    /* FILTERS */
-
     .filters {
       display: flex;
       gap: 8px;
@@ -133,7 +124,6 @@
       font-weight: bold;
       white-space: nowrap;
       cursor: pointer;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
 
     .filters button.active {
@@ -141,15 +131,11 @@
       color: white;
     }
 
-    /* MONTH */
-
     .month {
       font-size: 18px;
       font-weight: bold;
       margin: 23px 0 10px;
     }
-
-    /* FIXTURE */
 
     .fixture {
       background: white;
@@ -221,8 +207,6 @@
       font-size: 14px;
     }
 
-    /* STATUS */
-
     .status {
       display: inline-block;
       margin-top: 6px;
@@ -239,8 +223,6 @@
       color: #287528;
     }
 
-    /* LOADING / ERROR */
-
     .loading,
     .error,
     .empty {
@@ -254,8 +236,6 @@
       color: #b00020;
     }
 
-    /* FOOTER */
-
     .footer {
       text-align: center;
       color: #777;
@@ -263,10 +243,7 @@
       padding: 25px 10px;
     }
 
-    /* MOBILE */
-
     @media (max-width: 500px) {
-
       header h1 {
         font-size: 21px;
       }
@@ -313,54 +290,21 @@
 
 <main class="container">
 
-  <!-- NEXT MATCH -->
-
   <section class="next-match" id="nextMatch">
-
-    <div class="next-label">
-      Next Match
-    </div>
-
-    <div class="loading">
-      Loading...
-    </div>
-
+    <div class="next-label">Next Match</div>
+    <div class="loading">Loading...</div>
   </section>
 
-  <!-- FILTERS -->
-
   <div class="filters" id="filters">
-
-    <button class="active" data-filter="All">
-      All
-    </button>
-
-    <button data-filter="Premier League">
-      Premier League
-    </button>
-
-    <button data-filter="Champions League">
-      Champions League
-    </button>
-
-    <button data-filter="FA Cup">
-      FA Cup
-    </button>
-
-    <button data-filter="Carabao Cup">
-      Carabao Cup
-    </button>
-
+    <button class="active" data-filter="All">All</button>
+    <button data-filter="Premier League">Premier League</button>
+    <button data-filter="Champions League">Champions League</button>
+    <button data-filter="FA Cup">FA Cup</button>
+    <button data-filter="Carabao Cup">Carabao Cup</button>
   </div>
 
-  <!-- FIXTURES -->
-
   <section id="fixtures">
-
-    <div class="loading">
-      Loading fixtures...
-    </div>
-
+    <div class="loading">Loading fixtures...</div>
   </section>
 
   <div class="footer">
@@ -369,36 +313,14 @@
 
 </main>
 
-
 <script>
-
-/*
-====================================================
-MANCHESTER UNITED FIXTURE APP
-====================================================
-
-The website reads fixture information from your
-Google Sheet through Google Apps Script.
-
-You do NOT need to edit this URL unless the
-Apps Script deployment changes.
-====================================================
-*/
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxak67aZihpH2B0a3Ls46HZubqv7P0h5VM7QF5fTmD9EGGEvqw3IES2B7PBt6-uuvEH/exec";
 
-
 let fixtures = [];
-
 let currentFilter = "All";
 
-
-/*
-====================================================
-LOAD FIXTURES
-====================================================
-*/
 
 async function loadFixtures() {
 
@@ -411,55 +333,33 @@ async function loadFixtures() {
     });
 
     if (!response.ok) {
-
-      throw new Error(
-        "HTTP error: " + response.status
-      );
-
+      throw new Error("HTTP error: " + response.status);
     }
 
     const text = await response.text();
 
     fixtures = JSON.parse(text);
 
-    /*
-    Only use rows that contain a date.
-    */
-
     fixtures = fixtures
       .filter(fixture => fixture.Date)
       .sort(
         (a, b) =>
-          new Date(a.Date) -
-          new Date(b.Date)
+          new Date(a.Date) - new Date(b.Date)
       );
 
-
     showNextMatch();
-
     showFixtures();
-
 
   } catch (error) {
 
     console.error(error);
 
-    document.getElementById(
-      "fixtures"
-    ).innerHTML = `
-
+    document.getElementById("fixtures").innerHTML = `
       <div class="error">
-
-        <strong>
-          Unable to load fixtures
-        </strong>
-
+        <strong>Unable to load fixtures</strong>
         <br><br>
-
         Please refresh the page.
-
       </div>
-
     `;
 
   }
@@ -469,7 +369,7 @@ async function loadFixtures() {
 
 /*
 ====================================================
-CHECK WHETHER KICK-OFF IS CONFIRMED
+CONFIRMED KICK-OFF
 ====================================================
 */
 
@@ -477,9 +377,7 @@ function isConfirmed(fixture) {
 
   return String(
     fixture.Status || ""
-  )
-    .trim()
-    .toLowerCase() === "confirmed";
+  ).trim().toLowerCase() === "confirmed";
 
 }
 
@@ -489,10 +387,9 @@ function isConfirmed(fixture) {
 GET KICK-OFF
 ====================================================
 
-Only display the time if the fixture is
-officially marked as Confirmed.
+The Google Sheet uses "Kickoff" — not "Kick-off".
 
-Otherwise display TBC.
+Only display the time if Status is Confirmed.
 ====================================================
 */
 
@@ -500,10 +397,10 @@ function getKickoff(fixture) {
 
   if (
     isConfirmed(fixture) &&
-    fixture["Kick-off"]
+    fixture.Kickoff
   ) {
 
-    return fixture["Kick-off"];
+    return fixture.Kickoff;
 
   }
 
@@ -527,17 +424,13 @@ function showNextMatch() {
       new Date(fixture.Date) >= today
   );
 
-
   const container =
-    document.getElementById(
-      "nextMatch"
-    );
+    document.getElementById("nextMatch");
 
 
   if (!next) {
 
     container.innerHTML = `
-
       <div class="next-label">
         Next Match
       </div>
@@ -545,20 +438,15 @@ function showNextMatch() {
       <div class="empty">
         No upcoming fixtures.
       </div>
-
     `;
 
     return;
-
   }
 
 
   let opponent;
 
-
-  if (
-    next["Home/Away"] === "Home"
-  ) {
+  if (next["HomeAway"] === "Home") {
 
     opponent =
       "Manchester United vs " +
@@ -575,7 +463,6 @@ function showNextMatch() {
 
   const kickoff =
     getKickoff(next);
-
 
   const confirmed =
     isConfirmed(next);
@@ -598,9 +485,7 @@ function showNextMatch() {
     <div class="next-time ${
       confirmed ? "" : "tbc"
     }">
-
       ${kickoff}
-
     </div>
 
     <div class="next-competition">
@@ -608,12 +493,7 @@ function showNextMatch() {
     </div>
 
     <div class="next-homeaway">
-
-      ${
-        next["Home/Away"] ||
-        "TBC"
-      }
-
+      ${next.HomeAway || "TBC"}
     </div>
 
   `;
@@ -630,16 +510,12 @@ DISPLAY FIXTURES
 function showFixtures() {
 
   const container =
-    document.getElementById(
-      "fixtures"
-    );
+    document.getElementById("fixtures");
 
 
   const filtered =
     currentFilter === "All"
-
       ? fixtures
-
       : fixtures.filter(
           fixture =>
             fixture.Competition ===
@@ -650,11 +526,9 @@ function showFixtures() {
   if (!filtered.length) {
 
     container.innerHTML = `
-
       <div class="empty">
         No fixtures found.
       </div>
-
     `;
 
     return;
@@ -663,7 +537,6 @@ function showFixtures() {
 
 
   let html = "";
-
   let currentMonth = "";
 
 
@@ -683,34 +556,21 @@ function showFixtures() {
       );
 
 
-    /*
-    Add month heading.
-    */
-
-    if (
-      month !== currentMonth
-    ) {
+    if (month !== currentMonth) {
 
       currentMonth = month;
 
       html += `
-
         <div class="month">
           ${month}
         </div>
-
       `;
 
     }
 
 
-    /*
-    Home / Away.
-    */
-
     const homeAway =
-      fixture["Home/Away"] ||
-      "TBC";
+      fixture.HomeAway || "TBC";
 
 
     const homeAwayClass =
@@ -721,24 +581,16 @@ function showFixtures() {
           : "";
 
 
-    /*
-    Opponent display.
-    */
-
     let opponent;
 
 
-    if (
-      homeAway === "Home"
-    ) {
+    if (homeAway === "Home") {
 
       opponent =
         "Manchester United vs " +
         fixture.Opponent;
 
-    } else if (
-      homeAway === "Away"
-    ) {
+    } else if (homeAway === "Away") {
 
       opponent =
         fixture.Opponent +
@@ -752,10 +604,6 @@ function showFixtures() {
     }
 
 
-    /*
-    Kick-off.
-    */
-
     const confirmed =
       isConfirmed(fixture);
 
@@ -763,10 +611,6 @@ function showFixtures() {
     const kickoff =
       getKickoff(fixture);
 
-
-    /*
-    Status.
-    */
 
     const statusClass =
       confirmed
@@ -799,11 +643,8 @@ function showFixtures() {
         <div class="fixture-info">
 
           <div class="fixture-opponent">
-
             ${opponent}
-
           </div>
-
 
           <div class="fixture-meta">
 
@@ -835,9 +676,7 @@ function showFixtures() {
 
 
         <div class="fixture-time ${
-          confirmed
-            ? ""
-            : "tbc"
+          confirmed ? "" : "tbc"
         }">
 
           ${kickoff}
@@ -879,7 +718,7 @@ function formatDate(dateString) {
 
 /*
 ====================================================
-FILTER BUTTONS
+FILTERS
 ====================================================
 */
 
@@ -890,8 +729,7 @@ document
     function(event) {
 
       if (
-        event.target.tagName !==
-        "BUTTON"
+        event.target.tagName !== "BUTTON"
       ) {
 
         return;
@@ -927,7 +765,7 @@ document
 
 /*
 ====================================================
-START APP
+START
 ====================================================
 */
 
