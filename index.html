@@ -15,7 +15,7 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #f4f4f4;
+      background: #f3f3f3;
       color: #171717;
     }
 
@@ -28,13 +28,11 @@
 
     header h1 {
       margin: 0;
-      font-size: 24px;
-      letter-spacing: 1px;
+      font-size: 23px;
     }
 
     header p {
       margin: 6px 0 0;
-      opacity: 0.9;
       font-size: 14px;
     }
 
@@ -44,40 +42,44 @@
       padding: 16px;
     }
 
-    .next-match {
+    .card {
       background: white;
       border-radius: 16px;
-      padding: 22px;
-      margin-bottom: 20px;
+      padding: 20px;
+      margin-bottom: 18px;
       box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .next-title {
       text-align: center;
-    }
-
-    .next-match h2 {
-      margin-top: 0;
-      font-size: 16px;
       color: #DA291C;
+      font-weight: bold;
       text-transform: uppercase;
+      font-size: 14px;
     }
 
-    .opponent {
+    .next-opponent {
+      text-align: center;
       font-size: 25px;
       font-weight: bold;
       margin: 12px 0;
     }
 
-    .fixture-date {
-      font-size: 18px;
+    .next-date {
+      text-align: center;
       font-weight: bold;
+      font-size: 17px;
     }
 
-    .kickoff {
+    .next-time {
+      text-align: center;
       font-size: 30px;
       font-weight: bold;
-      margin: 8px 0;
+      margin: 7px 0;
     }
 
-    .competition {
+    .next-comp {
+      text-align: center;
       color: #666;
       font-size: 14px;
     }
@@ -86,18 +88,17 @@
       display: flex;
       gap: 8px;
       overflow-x: auto;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
+      margin-bottom: 18px;
+      padding-bottom: 4px;
     }
 
     .filters button {
-      border: none;
-      background: white;
-      padding: 10px 14px;
+      border: 0;
       border-radius: 20px;
-      white-space: nowrap;
+      padding: 10px 15px;
+      background: white;
       font-weight: bold;
-      cursor: pointer;
+      white-space: nowrap;
     }
 
     .filters button.active {
@@ -106,53 +107,51 @@
     }
 
     .month {
-      margin-top: 22px;
-      margin-bottom: 10px;
       font-size: 18px;
       font-weight: bold;
+      margin: 22px 0 10px;
     }
 
     .fixture {
       background: white;
       border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 10px;
+      padding: 15px;
+      margin-bottom: 9px;
       display: flex;
       align-items: center;
       gap: 12px;
       box-shadow: 0 2px 7px rgba(0,0,0,0.06);
     }
 
-    .fixture-date {
-      width: 60px;
+    .date {
+      width: 52px;
       text-align: center;
-      font-size: 13px;
       color: #666;
       flex-shrink: 0;
     }
 
-    .fixture-date strong {
+    .date strong {
       display: block;
       font-size: 20px;
-      color: #171717;
+      color: #111;
     }
 
-    .fixture-info {
+    .info {
       flex: 1;
     }
 
-    .fixture-opponent {
-      font-size: 17px;
+    .opponent {
       font-weight: bold;
+      font-size: 16px;
     }
 
-    .fixture-meta {
+    .meta {
       color: #666;
-      font-size: 13px;
+      font-size: 12px;
       margin-top: 5px;
     }
 
-    .fixture-time {
+    .time {
       font-weight: bold;
       font-size: 16px;
     }
@@ -160,11 +159,12 @@
     .status {
       display: inline-block;
       margin-top: 6px;
-      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 5px;
+      font-size: 10px;
       font-weight: bold;
-      padding: 4px 7px;
-      border-radius: 6px;
-      background: #eee;
+      background: #fff2cc;
+      color: #806000;
     }
 
     .confirmed {
@@ -172,35 +172,19 @@
       color: #287528;
     }
 
-    .tbc {
-      background: #fff2cc;
-      color: #8a6500;
-    }
-
-    .loading,
-    .error,
-    .empty {
+    .error {
+      text-align: center;
       background: white;
       padding: 20px;
       border-radius: 12px;
-      text-align: center;
+      color: #b00020;
     }
 
     .footer {
       text-align: center;
       color: #777;
       font-size: 12px;
-      padding: 25px 10px;
-    }
-
-    @media (max-width: 500px) {
-      header h1 {
-        font-size: 21px;
-      }
-
-      .opponent {
-        font-size: 22px;
-      }
+      padding: 25px;
     }
   </style>
 </head>
@@ -214,9 +198,9 @@
 
 <main class="container">
 
-  <section class="next-match" id="nextMatch">
-    <h2>Next Match</h2>
-    <div class="loading">Loading fixtures...</div>
+  <section class="card" id="nextMatch">
+    <div class="next-title">Next Match</div>
+    <div>Loading...</div>
   </section>
 
   <div class="filters" id="filters">
@@ -228,11 +212,11 @@
   </div>
 
   <section id="fixtures">
-    <div class="loading">Loading fixtures...</div>
+    <div>Loading fixtures...</div>
   </section>
 
   <div class="footer">
-    Manchester United 2026/27 Fixtures
+    Manchester United 2026/27
   </div>
 
 </main>
@@ -240,120 +224,121 @@
 <script>
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbxak67aZihpH2B0a3Ls46HZubqv7P0h5VM7QF5fTmD9EGGEvqw3IES2B7PBt6-uuvEH/exec";
+"https://script.google.com/macros/s/AKfycbxak67aZihpH2B0a3Ls46HZubqv7P0h5VM7QF5fTmD9EGGEvqw3IES2B7PBt6-uuvEH/exec";
 
 let fixtures = [];
 let currentFilter = "All";
 
 async function loadFixtures() {
 
-  const fixturesContainer = document.getElementById("fixtures");
-
   try {
 
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL, {
+      method: "GET",
+      redirect: "follow",
+      mode: "cors"
+    });
 
     if (!response.ok) {
-      throw new Error("Unable to load fixture data");
+      throw new Error("HTTP " + response.status);
     }
 
-    fixtures = await response.json();
+    const text = await response.text();
+
+    fixtures = JSON.parse(text);
 
     fixtures = fixtures
       .filter(f => f.Date)
-      .sort((a, b) => new Date(a.Date) - new Date(b.Date));
+      .sort((a,b) =>
+        new Date(a.Date) - new Date(b.Date)
+      );
 
-    displayNextMatch();
-    displayFixtures();
+    showNextMatch();
+    showFixtures();
 
   } catch (error) {
 
-    fixturesContainer.innerHTML =
-      `<div class="error">
-        Unable to load fixtures.<br>
-        Please try again later.
-      </div>`;
-
     console.error(error);
+
+    document.getElementById("fixtures").innerHTML = `
+      <div class="error">
+        <strong>Unable to load fixtures.</strong>
+        <br><br>
+        The fixture database could not be reached.
+      </div>
+    `;
+
   }
 }
 
-function displayNextMatch() {
+function showNextMatch() {
 
   const today = new Date();
 
-  const next = fixtures.find(f => {
-    return new Date(f.Date) >= today;
-  });
+  const next = fixtures.find(f =>
+    new Date(f.Date) >= today
+  );
 
-  const container = document.getElementById("nextMatch");
+  if (!next) return;
 
-  if (!next) {
-    container.innerHTML = `
-      <h2>Next Match</h2>
-      <div class="empty">No upcoming fixtures.</div>
-    `;
-    return;
-  }
+  const opponent =
+    next["Home/Away"] === "Home"
+      ? "Manchester United vs " + next.Opponent
+      : next.Opponent + " vs Manchester United";
 
-  const date = formatDate(next.Date);
+  document.getElementById("nextMatch").innerHTML = `
 
-  container.innerHTML = `
-    <h2>Next Match</h2>
-
-    <div class="opponent">
-      ${next["Home/Away"] === "Home"
-        ? "Manchester United vs " + next.Opponent
-        : next.Opponent + " vs Manchester United"}
+    <div class="next-title">
+      Next Match
     </div>
 
-    <div class="fixture-date">
-      ${date}
+    <div class="next-opponent">
+      ${opponent}
     </div>
 
-    <div class="kickoff">
+    <div class="next-date">
+      ${formatDate(next.Date)}
+    </div>
+
+    <div class="next-time">
       ${next["Kick-off"] || "TBC"}
     </div>
 
-    <div class="competition">
+    <div class="next-comp">
       ${next.Competition}
     </div>
 
-    <div class="status ${getStatusClass(next.Status)}">
-      ${next.Status || "TBC"}
-    </div>
   `;
 }
 
-function displayFixtures() {
+function showFixtures() {
 
-  const container = document.getElementById("fixtures");
+  const container =
+    document.getElementById("fixtures");
 
-  const filtered = currentFilter === "All"
-    ? fixtures
-    : fixtures.filter(f => f.Competition === currentFilter);
-
-  if (!filtered.length) {
-    container.innerHTML =
-      `<div class="empty">No fixtures found.</div>`;
-    return;
-  }
+  const filtered =
+    currentFilter === "All"
+      ? fixtures
+      : fixtures.filter(f =>
+          f.Competition === currentFilter
+        );
 
   let html = "";
-  let currentMonth = "";
+  let month = "";
 
-  filtered.forEach(fixture => {
+  filtered.forEach(f => {
 
-    const date = new Date(fixture.Date);
+    const date = new Date(f.Date);
 
-    const month = date.toLocaleDateString("en-GB", {
-      month: "long",
-      year: "numeric"
-    });
+    const currentMonth =
+      date.toLocaleDateString("en-GB", {
+        month: "long",
+        year: "numeric"
+      });
 
-    if (month !== currentMonth) {
+    if (currentMonth !== month) {
 
-      currentMonth = month;
+      month = currentMonth;
 
       html += `
         <div class="month">
@@ -362,88 +347,98 @@ function displayFixtures() {
       `;
     }
 
+    const opponent =
+      f["Home/Away"] === "Home"
+        ? "Manchester United vs " + f.Opponent
+        : f.Opponent + " vs Manchester United";
+
+    const statusClass =
+      String(f.Status || "")
+        .toLowerCase()
+        .includes("confirmed")
+        ? "confirmed"
+        : "";
+
     html += `
+
       <div class="fixture">
 
-        <div class="fixture-date">
-          <strong>${date.getDate()}</strong>
-          ${date.toLocaleDateString("en-GB", {
-            weekday: "short"
-          })}
+        <div class="date">
+
+          <strong>
+            ${date.getDate()}
+          </strong>
+
+          ${date.toLocaleDateString(
+            "en-GB",
+            { weekday: "short" }
+          )}
+
         </div>
 
-        <div class="fixture-info">
+        <div class="info">
 
-          <div class="fixture-opponent">
-            ${fixture["Home/Away"] === "Home"
-              ? "Manchester United vs " + fixture.Opponent
-              : fixture.Opponent + " vs Manchester United"}
+          <div class="opponent">
+            ${opponent}
           </div>
 
-          <div class="fixture-meta">
-            ${fixture["Home/Away"] || ""}
+          <div class="meta">
+            ${f["Home/Away"] || "TBC"}
             ·
-            ${fixture.Competition}
+            ${f.Competition}
           </div>
 
-          <div class="status ${getStatusClass(fixture.Status)}">
-            ${fixture.Status || "TBC"}
+          <div class="status ${statusClass}">
+            ${f.Status || "TBC"}
           </div>
 
         </div>
 
-        <div class="fixture-time">
-          ${fixture["Kick-off"] || "TBC"}
+        <div class="time">
+          ${f["Kick-off"] || "TBC"}
         </div>
 
       </div>
+
     `;
   });
 
-  container.innerHTML = html;
+  container.innerHTML =
+    html || "<div>No fixtures found.</div>";
 }
 
 function formatDate(dateString) {
 
-  const date = new Date(dateString);
-
-  return date.toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long"
-  });
-}
-
-function getStatusClass(status) {
-
-  if (!status) return "tbc";
-
-  if (
-    status.toLowerCase().includes("confirmed")
-  ) {
-    return "confirmed";
-  }
-
-  return "tbc";
+  return new Date(dateString)
+    .toLocaleDateString(
+      "en-GB",
+      {
+        weekday: "long",
+        day: "numeric",
+        month: "long"
+      }
+    );
 }
 
 document
   .getElementById("filters")
-  .addEventListener("click", function(event) {
+  .addEventListener("click", function(e) {
 
-    if (event.target.tagName !== "BUTTON") return;
+    if (e.target.tagName !== "BUTTON") return;
 
     document
       .querySelectorAll(".filters button")
-      .forEach(button =>
-        button.classList.remove("active")
+      .forEach(b =>
+        b.classList.remove("active")
       );
 
-    event.target.classList.add("active");
+    e.target.classList.add("active");
 
-    currentFilter = event.target.dataset.filter;
+    currentFilter =
+      e.target.dataset.filter;
 
-    displayFixtures();
+    showFixtures();
+
   });
 
 loadFixtures();
